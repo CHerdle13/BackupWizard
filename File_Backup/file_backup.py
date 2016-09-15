@@ -17,9 +17,9 @@ import time
 
 #make files if this is the first time running
 try:
-    file = open("All_Folders_To_Backup.txt", "w")
-except PermissionError:
     file = open("All_Folders_To_Backup.txt")
+except FileNotFoundError:
+    file = open("All_Folders_To_Backup.txt", "w")
 file.close()
 
 
@@ -142,7 +142,11 @@ class entryWindow():
             newPath = self.path + '/' + fname
             if os.path.exists(line):
                 print("Backing up: ",line)
-                shutil.copytree(line,newPath)
+                try:
+                    shutil.copytree(line,newPath)
+                except PermissionError:
+                    os.mkdir(newPath)
+                    recursiveCopy(line,newPath)
             else:
                 dneList.append(line)
         if len(dneList)>0:
@@ -215,6 +219,24 @@ class removeWindow():
 
 
 #functions
+def recursiveCopy(srcFolderPath,dst):
+    flist = os.listdir(srcFolderPath)
+    for item in flist:
+        lineName = srcFolderPath + '/' + item
+        if os.path.isfile(lineName):
+            try:
+                shutil.copy(lineName,dst)
+            except PermissionError:
+                printLine = lineName + ' does not have permission to be copied'
+                print(printLine)
+        elif os.path.isdir(lineName):
+            dstname = dst + '/' + item
+            try:
+                shutil.copytree(lineName,dstname)
+            except PermissionError:
+                os.mkdir(dstname)
+                recursiveCopy(lineName,dstname)
+
 def pickFolder():
     newFolder = filedialog.askdirectory()
     if newFolder not in open("All_Folders_To_Backup.txt").read():
