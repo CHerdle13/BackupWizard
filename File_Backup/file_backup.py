@@ -4,14 +4,14 @@ import shutil
 import os
 import ctypes
 from tkinter import *
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, messagebox, ttk
 import time
 
 
 '''
 -----------STILL TO DO----------
 -convert to windows exec file
-
+-add progress bar
 -maybe some other stuff???
 '''
 
@@ -144,7 +144,7 @@ class entryWindow():
                 print("Backing up: ",line)
                 try:
                     shutil.copytree(line,newPath)
-                except PermissionError:
+                except (PermissionError, shutil.Error):
                     os.mkdir(newPath)
                     recursiveCopy(line,newPath)
             else:
@@ -226,14 +226,14 @@ def recursiveCopy(srcFolderPath,dst):
         if os.path.isfile(lineName):
             try:
                 shutil.copy(lineName,dst)
-            except PermissionError:
+            except (PermissionError, shutil.Error):
                 printLine = lineName + ' does not have permission to be copied'
                 print(printLine)
         elif os.path.isdir(lineName):
             dstname = dst + '/' + item
             try:
                 shutil.copytree(lineName,dstname)
-            except PermissionError:
+            except (PermissionError, shutil.Error):
                 os.mkdir(dstname)
                 recursiveCopy(lineName,dstname)
 
